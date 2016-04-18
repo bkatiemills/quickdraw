@@ -24,7 +24,10 @@
             poly.lineTo(200, 300)
             poly.lineTo(10,300)
             poly.closePath()
-            shapes.push(new qdshape(poly))
+            shapes.push(new qdshape(poly, 'blacksquare'))
+            shapes[0].click = function(x,y,evt){
+                console.log(x,y,this._fillStyle)
+            }
 
             poly = new Path2D()
             poly.moveTo(60,60)
@@ -32,7 +35,7 @@
             poly.lineTo(250, 350)
             poly.lineTo(60,350)
             poly.closePath()
-            shapes.push(new qdshape(poly))
+            shapes.push(new qdshape(poly, 'redsquare'))
 
             poly = new Path2D()
             poly.moveTo(60,250)
@@ -40,7 +43,7 @@
             poly.lineTo(500,270)
             poly.lineTo(60,270)
             poly.closePath()
-            shapes.push(new qdshape(poly))
+            shapes.push(new qdshape(poly, 'greensquare'))
             shapes[2].fillStyle = '#00FF00'
             shapes[2].z = 10000;
 
@@ -50,6 +53,7 @@
             qd.render();
 
             shapes[1].fillStyle = '#FF0000'
+            shapes[1].lineWidth = 10
             layers[1].add(shapes[2]);
             qd.render();
         </script>
