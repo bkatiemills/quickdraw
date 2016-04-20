@@ -176,8 +176,20 @@ function qdshape(path, parameters){
         set: propertySetter.bind(this, '_fillStyle')
     });
 
-    Object.defineProperty(this, 'z', {
-        set: propertySetter.bind(this, '_z')
+    Object.defineProperty(this, 'z', 
+        {
+            set:function(variableName, setValue){
+                    //usual repaint
+                    this[variableName] = setValue;
+                    if(this.parentLayer){
+                        this.parentLayer.needsUpdate = true;
+
+                        //also need to resort
+                        this.parentLayer.members.sort(function(a, b) {
+                            return a._z - b._z;
+                        }) 
+                    }               
+                }.bind(this, '_z')
     });
 
     Object.defineProperty(this, 'fillPriority', {
