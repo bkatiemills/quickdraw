@@ -42,8 +42,14 @@ function quickdraw(width, height){
                 this.layers[i].ctx.clearRect(0, 0, this.layers[i].canvas.width, this.layers[i].canvas.height);
                 // redraw everything
                 for(j=0; j<this.layers[i].members.length; j++){
+                    // line size
                     this.layers[i].ctx.lineWidth = this.layers[i].members[j]._lineWidth;
-                    this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
+                    // fill color or pattern
+                    if(this.layers[i].members[j]._fillPriority == 'color' || !this.layers[i].members[j]._fillPatternImage)
+                        this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
+                    else if(this.layers[i].members[j]._fillPriority == 'pattern')
+                        this.layers[i].ctx.fillStyle = this.layers[i].ctx.createPattern(this.layers[i].members[j]._fillPatternImage, "repeat");
+                    // line style
                     this.layers[i].ctx.strokeStyle = this.layers[i].members[j]._strokeStyle;
 
                     this.layers[i].ctx.fill(this.layers[i].members[j]._path);
@@ -124,19 +130,21 @@ function quickdraw(width, height){
 
 }
 
-function qdshape(path, id){
+function qdshape(path, parameters){
     // constructor for a generic shape; path == Path2D object that defines the shape
 
     var propertySetter, interactionSetter;
 
     // default parameters
-    this.id = id;
+    this.id = parameters.id;
     this._path = path;
-    this._lineWidth = 1;
-    this._strokeStyle = '#000000';
-    this._fillStyle = '#000000';
-    this.touchable = true;
-    this._z = 1;
+    this._lineWidth = parameters.lineWidth || 1;
+    this._strokeStyle = parameters.strokeStyle || '#000000';
+    this._fillStyle = parameters.fillStyle || '#000000';
+    this.touchable = parameters.hasOwnProperty('touchable') ? parameters.touchable : true;
+    this._z = parameters.z || 1;
+    this._fillPriority = parameters.fillPriority || 'color';
+    this._fillPatternImage = parameters.fillPatternImage || null;
     this.parentLayer = null;
 
     // dummy interaction callbacks
@@ -170,6 +178,14 @@ function qdshape(path, id){
 
     Object.defineProperty(this, 'z', {
         set: propertySetter.bind(this, '_z')
+    });
+
+    Object.defineProperty(this, 'fillPriority', {
+        set: propertySetter.bind(this, '_fillPriority')
+    });
+
+    Object.defineProperty(this, 'fillPatternImage', {
+        set: propertySetter.bind(this, '_fillPatternImage')
     });
 
     // mouse interaction setters

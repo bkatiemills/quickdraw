@@ -1,9 +1,12 @@
 <html>
     <head>
         <script src='src/quickdraw.js' type="text/javascript"></script>
+
     </head>
 
     <body>
+        <img id='static' src='img/static.gif' style='display:none'></img>
+
         <script>
             var qd = new quickdraw(500, 500);
             document.body.appendChild(qd.canvas);
@@ -24,7 +27,14 @@
             poly.lineTo(200, 300)
             poly.lineTo(10,300)
             poly.closePath()
-            shapes.push(new qdshape(poly, 'blacksquare'))
+            shapes.push(new qdshape(poly, {
+                id:'blacksquare',
+                fillPriority:'pattern'
+            }))
+            document.getElementById('static').onload = function(){
+                shapes[0].fillPatternImage = this;
+                qd.render()
+            }
             shapes[0].click = function(x,y,evt){
                 console.log(x,y,this._fillStyle)
             }
@@ -35,7 +45,7 @@
             poly.lineTo(250, 350)
             poly.lineTo(60,350)
             poly.closePath()
-            shapes.push(new qdshape(poly, 'redsquare'))
+            shapes.push(new qdshape(poly, {id:'redsquare'}))
 
             poly = new Path2D()
             poly.moveTo(60,250)
@@ -43,9 +53,11 @@
             poly.lineTo(500,270)
             poly.lineTo(60,270)
             poly.closePath()
-            shapes.push(new qdshape(poly, 'greensquare'))
-            shapes[2].fillStyle = '#00FF00'
-            shapes[2].z = 10000;
+            shapes.push(new qdshape(poly, {
+                id: 'greensquare',
+                fillStyle: '#00FF00',
+                z: 10000
+            }))
 
             layers[0].add(shapes[0]);
             layers[1].add(shapes[1]);
