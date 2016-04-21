@@ -42,6 +42,11 @@ function quickdraw(width, height){
                 this.layers[i].ctx.clearRect(0, 0, this.layers[i].canvas.width, this.layers[i].canvas.height);
                 // redraw everything
                 for(j=0; j<this.layers[i].members.length; j++){
+                    this.layers[i].ctx.save();
+                    this.layers[i].ctx.translate(this.layers[i].members[j]._x, this.layers[i].members[j]._y);
+                    this.layers[i].ctx.rotate(this.layers[i].members[j]._internalRotation*Math.PI/180);
+                    this.layers[i].ctx.translate(-this.layers[i].members[j]._x, -this.layers[i].members[j]._y);
+
                     if(this.layers[i].members[j] instanceof qdshape){
                         // line size
                         this.layers[i].ctx.lineWidth = this.layers[i].members[j]._lineWidth;
@@ -60,6 +65,8 @@ function quickdraw(width, height){
                         this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
                         this.layers[i].ctx.fillText(this.layers[i].members[j]._text, this.layers[i].members[j]._x, this.layers[i].members[j]._y);
                     }
+
+                    this.layers[i].ctx.restore();
                 }
                 this.layers[i].needsUpdate = false;
             }
@@ -151,7 +158,10 @@ function qdshape(path, parameters){
     this._strokeStyle = parameters.strokeStyle || '#000000';
     this._fillStyle = parameters.fillStyle || '#000000';
     this.touchable = parameters.hasOwnProperty('touchable') ? parameters.touchable : true;
+    this._x = parameters.x || 0;
+    this._y = parameters.y || 0;
     this._z = parameters.z || 1;
+    this._internalRotation = parameters.internalRotation || 0;
     this._fillPriority = parameters.fillPriority || 'color';
     this._fillPatternImage = parameters.fillPatternImage || null;
     this.parentLayer = null;
@@ -185,6 +195,14 @@ function qdshape(path, parameters){
         set: propertySetter.bind(this, '_fillStyle')
     });
 
+    Object.defineProperty(this, 'x', {
+        set: propertySetter.bind(this, '_x')
+    });
+
+    Object.defineProperty(this, 'y', {
+        set: propertySetter.bind(this, '_y')
+    });
+
     Object.defineProperty(this, 'z', 
         {
             set:function(variableName, setValue){
@@ -199,6 +217,10 @@ function qdshape(path, parameters){
                         }) 
                     }               
                 }.bind(this, '_z')
+    });
+
+    Object.defineProperty(this, 'internalRotation', {
+        set: propertySetter.bind(this, '_internalRotation')
     });
 
     Object.defineProperty(this, 'fillPriority', {
