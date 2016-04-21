@@ -42,18 +42,24 @@ function quickdraw(width, height){
                 this.layers[i].ctx.clearRect(0, 0, this.layers[i].canvas.width, this.layers[i].canvas.height);
                 // redraw everything
                 for(j=0; j<this.layers[i].members.length; j++){
-                    // line size
-                    this.layers[i].ctx.lineWidth = this.layers[i].members[j]._lineWidth;
-                    // fill color or pattern
-                    if(this.layers[i].members[j]._fillPriority == 'color' || !this.layers[i].members[j]._fillPatternImage)
-                        this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
-                    else if(this.layers[i].members[j]._fillPriority == 'pattern')
-                        this.layers[i].ctx.fillStyle = this.layers[i].ctx.createPattern(this.layers[i].members[j]._fillPatternImage, "repeat");
-                    // line style
-                    this.layers[i].ctx.strokeStyle = this.layers[i].members[j]._strokeStyle;
+                    if(this.layers[i].members[j] instanceof qdshape){
+                        // line size
+                        this.layers[i].ctx.lineWidth = this.layers[i].members[j]._lineWidth;
+                        // fill color or pattern
+                        if(this.layers[i].members[j]._fillPriority == 'color' || !this.layers[i].members[j]._fillPatternImage)
+                            this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
+                        else if(this.layers[i].members[j]._fillPriority == 'pattern')
+                            this.layers[i].ctx.fillStyle = this.layers[i].ctx.createPattern(this.layers[i].members[j]._fillPatternImage, "repeat");
+                        // line style
+                        this.layers[i].ctx.strokeStyle = this.layers[i].members[j]._strokeStyle;
 
-                    this.layers[i].ctx.fill(this.layers[i].members[j]._path);
-                    this.layers[i].ctx.stroke(this.layers[i].members[j]._path);
+                        this.layers[i].ctx.fill(this.layers[i].members[j]._path);
+                        this.layers[i].ctx.stroke(this.layers[i].members[j]._path);
+                    } else if(this.layers[i].members[j] instanceof qdtext){
+                        this.layers[i].ctx.font = this.layers[i].members[j]._fontSize + 'px ' + this.layers[i].members[j]._typeface;
+                        this.layers[i].ctx.fillStyle = this.layers[i].members[j]._fillStyle;
+                        this.layers[i].ctx.fillText(this.layers[i].members[j]._text, this.layers[i].members[j]._x, this.layers[i].members[j]._y);
+                    }
                 }
                 this.layers[i].needsUpdate = false;
             }
@@ -88,6 +94,9 @@ function quickdraw(width, height){
             bounds = this.canvas.getBoundingClientRect();
 
         for(i=0; i<this.touchTargets.length; i++){
+
+            if(this.touchTargets[i] instanceof qdtext) continue; //no touching text nodes for now
+
             // are we touching shape i?
             if(this.ctx.isPointInPath(this.touchTargets[i]._path, evt.clientX - bounds.left, evt.clientY - bounds.top)){
                 this.currentTouch = this.touchTargets[i];
@@ -220,6 +229,116 @@ function qdshape(path, parameters){
     Object.defineProperty(this, 'mouseout', {
         set: interactionSetter.bind(this, '_mouseout')
     });
+}
+
+function qdtext(text, parameters){
+    // constructor for a text object; name == string name of text
+
+    var propertySetter, interactionSetter;
+
+    // default parameters
+    this.id = parameters.id;
+    this._text = text;
+    this._fontSize = parameters.fontSize || 12;
+    this._typeface = parameters.typeface || 'sans-serif';
+    this._strokeStyle = parameters.strokeStyle || '#000000';
+    this._fillStyle = parameters.fillStyle || '#000000';
+    this._x = parameters.x || 0;
+    this._y = parameters.y || 0;
+    this._z = parameters.z || 1;
+    this.parentLayer = null;
+
+    // dummy interaction callbacks
+    this._click = function(){return 0};
+    this._mouseover = function(){return 0};
+    this._mousemove = function(){return 0};
+    this._mouseout = function(){return 0};
+
+    // setters flag layers for redraw
+    propertySetter = function(variableName, setValue){
+        this[variableName] = setValue;
+        if(this.parentLayer)
+            this.parentLayer.needsUpdate = true;
+    };
+
+    Object.defineProperty(this, 'text', {
+        set: propertySetter.bind(this, '_text')
+    });
+
+    Object.defineProperty(this, 'fontSize', {
+        set: propertySetter.bind(this, '_fontSize')
+    });
+
+    Object.defineProperty(this, 'typeface', {
+        set: propertySetter.bind(this, '_typeface')
+    });
+
+    Object.defineProperty(this, 'strokeStyle', {
+        set: propertySetter.bind(this, '_strokeStyle')
+    });
+
+    Object.defineProperty(this, 'fillStyle', {
+        set: propertySetter.bind(this, '_fillStyle')
+    });
+
+    Object.defineProperty(this, 'x', {
+        set: propertySetter.bind(this, '_x')
+    });
+
+    Object.defineProperty(this, 'y', {
+        set: propertySetter.bind(this, '_y')
+    });
+
+    Object.defineProperty(this, 'z', 
+        {
+            set:function(variableName, setValue){
+                    //usual repaint
+                    this[variableName] = setValue;
+                    if(this.parentLayer){
+                        this.parentLayer.needsUpdate = true;
+
+                        //also need to resort
+                        this.parentLayer.members.sort(function(a, b) {
+                            return a._z - b._z;
+                        }) 
+                    }               
+                }.bind(this, '_z')
+    });
+
+    // mouse interaction setters
+    interactionSetter = function(interactionName, callback){
+        this[interactionName] = callback.bind(this);
+    }
+
+    Object.defineProperty(this, 'click', {
+        set: interactionSetter.bind(this, '_click')
+    });
+
+    Object.defineProperty(this, 'mouseover', {
+        set: interactionSetter.bind(this, '_mouseover')
+    });
+
+    Object.defineProperty(this, 'mousemove', {
+        set: interactionSetter.bind(this, '_mousemove')
+    });
+
+    Object.defineProperty(this, 'mouseout', {
+        set: interactionSetter.bind(this, '_mouseout')
+    });
+
+    this.getTextWidth = function(){
+        
+        var textsize;
+
+        if(this.parentLayer){
+            this.parentLayer.ctx.font = this._fontSize + 'px ' + this._typeface;
+            textsize = this.parentLayer.ctx.measureText(this._text);
+            return textsize.width;
+        } else {
+            return null;
+        }
+    }
+
 }
 
 function qdlayer(name){
