@@ -348,14 +348,14 @@ function qdtext(text, parameters){
         set: interactionSetter.bind(this, '_mouseout')
     });
 
-    this.getTextWidth = function(){
+    this.getTextMetric = function(){
         
         var textsize;
 
         if(this.parentLayer){
             this.parentLayer.ctx.font = this._fontSize + 'px ' + this._typeface;
             textsize = this.parentLayer.ctx.measureText(this._text);
-            return textsize.width;
+            return textsize;
         } else {
             return null;
         }
