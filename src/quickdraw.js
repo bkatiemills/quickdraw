@@ -90,7 +90,8 @@ function quickdraw(width, height){
 
             // touch targets list
             for(j=this.layers[i].members.length-1; j>=0; j--){
-                this.touchTargets.push(this.layers[i].members[j])
+                if(this.layers[i].members[j]._touchable)
+                    this.touchTargets.push(this.layers[i].members[j])
             }
         }  
     }
@@ -102,7 +103,8 @@ function quickdraw(width, height){
 
         for(i=0; i<this.touchTargets.length; i++){
 
-            if(this.touchTargets[i] instanceof qdtext) continue; //no touching text nodes for now
+            if( this.touchTargets[i] instanceof qdtext) //no touching text nodes for now 
+                continue; 
 
             // are we touching shape i?
             if(this.ctx.isPointInPath(this.touchTargets[i]._path, evt.clientX - bounds.left, evt.clientY - bounds.top)){
@@ -114,7 +116,7 @@ function quickdraw(width, height){
                     if(!this.previousTouch){
                         //move from empty space to shape
                         this.currentTouch._mouseover(evt.clientX - bounds.left, evt.clientY - bounds.top, evt);
-                    } else if(this.previousTouch.id !== this.currentTouch.id){
+                    } else if(this.previousTouch._id !== this.currentTouch._id){
                         //left one shape and entered another
                         this.previousTouch._mouseout(evt.clientX - bounds.left, evt.clientY - bounds.top, evt);
                         this.currentTouch._mouseover(evt.clientX - bounds.left, evt.clientY - bounds.top, evt);
@@ -149,15 +151,21 @@ function quickdraw(width, height){
 function qdshape(path, parameters){
     // constructor for a generic shape; path == Path2D object that defines the shape
 
-    var propertySetter, interactionSetter;
+    var propertySetter, interactionSetter, i,
+        genericProperties = [
+            'path', 'lineWidth', 'strokeStyle', 'fillStyle', 'touchable', 'x', 'y', 
+            'internalRotation', 'fillPriority', 'fillPatternImage'
+        ],
+        genericInteractions = ['click', 'mouseover', 'mousemove', 'mouseout'];
+
 
     // default parameters
-    this.id = parameters.id;
+    this._id = parameters.id;
     this._path = path;
     this._lineWidth = parameters.lineWidth || 1;
     this._strokeStyle = parameters.strokeStyle || '#000000';
     this._fillStyle = parameters.fillStyle || '#000000';
-    this.touchable = parameters.hasOwnProperty('touchable') ? parameters.touchable : true;
+    this._touchable = parameters.hasOwnProperty('touchable') ? parameters.touchable : true;
     this._x = parameters.x || 0;
     this._y = parameters.y || 0;
     this._z = parameters.z || 1;
@@ -179,30 +187,14 @@ function qdshape(path, parameters){
             this.parentLayer.needsUpdate = true;
     };
 
-    Object.defineProperty(this, 'path', {
-        set: propertySetter.bind(this, '_path')
-    });
+    // generic setters
+    for(i=0; i<genericProperties.length; i++){
+        Object.defineProperty(this, genericProperties[i], {
+            set: propertySetter.bind(this, '_'+genericProperties[i])
+        });
+    }
 
-    Object.defineProperty(this, 'lineWidth', {
-        set: propertySetter.bind(this, '_lineWidth')
-    });
-
-    Object.defineProperty(this, 'strokeStyle', {
-        set: propertySetter.bind(this, '_strokeStyle')
-    });
-
-    Object.defineProperty(this, 'fillStyle', {
-        set: propertySetter.bind(this, '_fillStyle')
-    });
-
-    Object.defineProperty(this, 'x', {
-        set: propertySetter.bind(this, '_x')
-    });
-
-    Object.defineProperty(this, 'y', {
-        set: propertySetter.bind(this, '_y')
-    });
-
+    // special setter behavior
     Object.defineProperty(this, 'z', 
         {
             set:function(variableName, setValue){
@@ -219,47 +211,27 @@ function qdshape(path, parameters){
                 }.bind(this, '_z')
     });
 
-    Object.defineProperty(this, 'internalRotation', {
-        set: propertySetter.bind(this, '_internalRotation')
-    });
-
-    Object.defineProperty(this, 'fillPriority', {
-        set: propertySetter.bind(this, '_fillPriority')
-    });
-
-    Object.defineProperty(this, 'fillPatternImage', {
-        set: propertySetter.bind(this, '_fillPatternImage')
-    });
-
     // mouse interaction setters
     interactionSetter = function(interactionName, callback){
         this[interactionName] = callback.bind(this);
     }
 
-    Object.defineProperty(this, 'click', {
-        set: interactionSetter.bind(this, '_click')
-    });
-
-    Object.defineProperty(this, 'mouseover', {
-        set: interactionSetter.bind(this, '_mouseover')
-    });
-
-    Object.defineProperty(this, 'mousemove', {
-        set: interactionSetter.bind(this, '_mousemove')
-    });
-
-    Object.defineProperty(this, 'mouseout', {
-        set: interactionSetter.bind(this, '_mouseout')
-    });
+    // generic interactions
+    for(i=0; i<genericInteractions.length; i++){
+        Object.defineProperty(this, genericInteractions[i], {
+            set: interactionSetter.bind(this, '_'+genericInteractions[i])
+        });
+    }
 }
 
 function qdtext(text, parameters){
     // constructor for a text object; name == string name of text
 
-    var propertySetter, interactionSetter;
+    var propertySetter, i,
+        genericProperties = ['text', 'fontSize', 'typeface', 'strokeStyle', 'fillStyle', 'x', 'y'];
 
     // default parameters
-    this.id = parameters.id;
+    this._id = parameters.id;
     this._text = text;
     this._fontSize = parameters.fontSize || 12;
     this._typeface = parameters.typeface || 'sans-serif';
@@ -270,12 +242,6 @@ function qdtext(text, parameters){
     this._z = parameters.z || 1;
     this.parentLayer = null;
 
-    // dummy interaction callbacks
-    this._click = function(){return 0};
-    this._mouseover = function(){return 0};
-    this._mousemove = function(){return 0};
-    this._mouseout = function(){return 0};
-
     // setters flag layers for redraw
     propertySetter = function(variableName, setValue){
         this[variableName] = setValue;
@@ -283,33 +249,12 @@ function qdtext(text, parameters){
             this.parentLayer.needsUpdate = true;
     };
 
-    Object.defineProperty(this, 'text', {
-        set: propertySetter.bind(this, '_text')
-    });
-
-    Object.defineProperty(this, 'fontSize', {
-        set: propertySetter.bind(this, '_fontSize')
-    });
-
-    Object.defineProperty(this, 'typeface', {
-        set: propertySetter.bind(this, '_typeface')
-    });
-
-    Object.defineProperty(this, 'strokeStyle', {
-        set: propertySetter.bind(this, '_strokeStyle')
-    });
-
-    Object.defineProperty(this, 'fillStyle', {
-        set: propertySetter.bind(this, '_fillStyle')
-    });
-
-    Object.defineProperty(this, 'x', {
-        set: propertySetter.bind(this, '_x')
-    });
-
-    Object.defineProperty(this, 'y', {
-        set: propertySetter.bind(this, '_y')
-    });
+    // generic setters
+    for(i=0; i<genericProperties.length; i++){
+        Object.defineProperty(this, genericProperties[i], {
+            set: propertySetter.bind(this, '_'+genericProperties[i])
+        });
+    };
 
     Object.defineProperty(this, 'z', 
         {
@@ -327,38 +272,13 @@ function qdtext(text, parameters){
                 }.bind(this, '_z')
     });
 
-    // mouse interaction setters
-    interactionSetter = function(interactionName, callback){
-        this[interactionName] = callback.bind(this);
-    }
-
-    Object.defineProperty(this, 'click', {
-        set: interactionSetter.bind(this, '_click')
-    });
-
-    Object.defineProperty(this, 'mouseover', {
-        set: interactionSetter.bind(this, '_mouseover')
-    });
-
-    Object.defineProperty(this, 'mousemove', {
-        set: interactionSetter.bind(this, '_mousemove')
-    });
-
-    Object.defineProperty(this, 'mouseout', {
-        set: interactionSetter.bind(this, '_mouseout')
-    });
-
     this.getTextMetric = function(){
         
-        var textsize;
+        var dummyCanvas = document.createElement('canvas'),
+            dummyContext = dummyCanvas.getContext('2d');
 
-        if(this.parentLayer){
-            this.parentLayer.ctx.font = this._fontSize + 'px ' + this._typeface;
-            textsize = this.parentLayer.ctx.measureText(this._text);
-            return textsize;
-        } else {
-            return null;
-        }
+        dummyContext.font = this._fontSize + 'px ' + this._typeface;
+        return dummyContext.measureText(this._text);
     }
 
 }
