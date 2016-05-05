@@ -116,3 +116,4 @@ where `text` is a string describing the text you'd like to add to your image, an
 
 ##### Methods
 
+ - **myText.getTextMetric()**: Returns the [TextMetrics](https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics) object for the text with its current font, size etc.
