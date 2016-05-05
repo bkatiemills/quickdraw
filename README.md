@@ -117,3 +117,12 @@ where `text` is a string describing the text you'd like to add to your image, an
 ##### Methods
 
  - **myText.getTextMetric()**: Returns the [TextMetrics](https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics) object for the text with its current font, size etc.
+
+### 3. Contributing
+
+Quickdraw is pretty raw atm - if you see this as potentially becoming useful in your work, feel free to send a pull request! If you'd like to get involved, please observe these steps:
+
+ - **Start by opening an issue** so we can discuss your idea.
+ - **Try to limit each individual PR to less than 500 lines.** Why? See figure 1 [here](https://smartbear.com/SmartBear/media/pdfs/11_Best_Practices_for_Peer_Code_Review.pdf)
+ - Please try to encapsulate all new functionality in **short** (<50 lines) functions.
+ - Testing mandatory... once I implement a test suite. 
