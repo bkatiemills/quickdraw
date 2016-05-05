@@ -4,8 +4,8 @@ Quickdraw is a specialized javascript framework for making high-performance inte
 
 **Contents**
  - [Quickstart](#1-quickdraw-quickstart)
- - [API](#api)
- - [Contributing](#contributing)
+ - [API](#2-api)
+ - [Contributing](#3-contributing)
 
 ### 1. Quickdraw Quickstart
 
