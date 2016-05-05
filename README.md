@@ -2,6 +2,11 @@
 
 Quickdraw is a specialized javascript framework for making high-performance interactive images, originally built for the GRIFFIN spectrometer at TRIUMF; it supports simple layer compositing, mouse interactions, *and that's it*. Quickdraw is *not* a full-featured HTML5 canvas games library! For that, check out projects like [pixi.js](http://www.pixijs.com/) and [three.js](http://threejs.org/).
 
+**Contents**
+ - [Quickstart](#1-quickdraw-quickstart)
+ - [API](#api)
+ - [Contributing](#contributing)
+
 ### 1. Quickdraw Quickstart
 
 A quick tour of quickdraw is available in `demo.html`; open that file up in your favorite browser, and follow along with the inline comments.
