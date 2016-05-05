@@ -123,6 +123,7 @@ where `text` is a string describing the text you'd like to add to your image, an
 Quickdraw is pretty raw atm - if you see this as potentially becoming useful in your work, feel free to send a pull request! If you'd like to get involved, please observe these steps:
 
  - **Start by opening an issue** so we can discuss your idea.
- - **Try to limit each individual PR to less than 500 lines.** Why? See figure 1 [here](https://smartbear.com/SmartBear/media/pdfs/11_Best_Practices_for_Peer_Code_Review.pdf)
+ - **Try to limit each individual PR to less than 500 lines.** Why? See figure 1 [here](https://smartbear.com/SmartBear/media/pdfs/11_Best_Practices_for_Peer_Code_Review.pdf).
  - Please try to encapsulate all new functionality in **short** (<50 lines) functions.
+ - Docs **must** be updated to match new functionality in the same PR.
  - Testing mandatory... once I implement a test suite. 
