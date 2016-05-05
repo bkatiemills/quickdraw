@@ -91,13 +91,13 @@ Mouse interaction listener naming and setting conventions follow the same unders
  - **myShape.mousemove**: function called every time the mouse moves within the shape.
  - **myShape.mouseout**: function called when the mouse leaves the shape.
 
- #### 2.4 `qdtext` objects
+#### 2.4 `qdtext` objects
 
- Text nodes are declared and added to layers similarly to `qdshape` objects:
+Text nodes are declared and added to layers similarly to `qdshape` objects:
 
- ```
- var myText = new qdtext(text, parameters)
- ```
+```
+var myText = new qdtext(text, parameters)
+```
 
 where `text` is a string describing the text you'd like to add to your image, and `parameters` is an optional JSON object initializing any subset of the member variables listed below.
 
