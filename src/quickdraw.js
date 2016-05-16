@@ -281,6 +281,13 @@ function qdtext(text, parameters){
         return dummyContext.measureText(this._text);
     }
 
+    this.squishFont = function(maxWidth){
+        // reduce the font size of this object until it fits in maxWidth
+        while(this.getTextMetric().width > maxWidth && this._fontSize>1){
+            this.fontSize = this._fontSize - 1;
+        }
+    }
+
 }
 
 function qdlayer(name){
