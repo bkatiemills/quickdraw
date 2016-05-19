@@ -1,5 +1,6 @@
 Release | DOI
 --------|----
+0.2.0   | [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.51707.svg)](http://dx.doi.org/10.5281/zenodo.51707)
 0.1.0   | [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.51042.svg)](http://dx.doi.org/10.5281/zenodo.51042)
 
 ## quickdraw
